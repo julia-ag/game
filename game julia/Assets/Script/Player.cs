@@ -12,12 +12,12 @@ public class Player : MonoBehaviour
     private float speed = 5;
     //componente animator
     public Animator animator;
-    private bool isJumping;
+    public bool isJumping = false;
     private float JumpForce = 8;
     void Start()
     {
         rig = GetComponent<Rigidbody2D>();
-        posInicial = new Vector3(-0.83f, -0.42f, 0f);
+        posInicial = new Vector3(0f, -0.98f, 0f);
         transform.position = posInicial;
     }
 
@@ -26,7 +26,7 @@ public class Player : MonoBehaviour
     {
         rig.velocity = new Vector2(speed, rig.velocity.y);
         rig.velocity = new Vector2(Input.GetAxis("Horizontal") * speed, rig.velocity.y);
-        if(Input.GetAxis("Horizontal") != 0)
+        if (Input.GetAxis("Horizontal") != 0)
         {
             animator.SetBool("isMoving", true);
         }
@@ -35,23 +35,40 @@ public class Player : MonoBehaviour
             animator.SetBool("isMoving", false);
         }
         //verifica se a tecla espaço foi pressionada
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && isJumping == false)
         {
             rig.AddForce(Vector2.up * JumpForce, ForceMode2D.Impulse);
         }
         //verifica se a tecla A foi pressionada
         if (Input.GetKeyDown(KeyCode.A) && transform.localScale.x > 0)
         {
-            transform.localScale = new Vector3(transform.localScale.x * - 1,
+            transform.localScale = new Vector3(transform.localScale.x * -1,
             transform.localScale.y, transform.localScale.z);
             //Debug.Log("Tecla A pressionada")
         }
         //verifica se a tecla D foi pressionada
         if (Input.GetKeyDown(KeyCode.D) && transform.localScale.x < 0)
         {
-            transform.localScale = new Vector3(transform.localScale.x * - 1,
+            transform.localScale = new Vector3(transform.localScale.x * -1,
             transform.localScale.y, transform.localScale.z);
             //Debug.Log("Tecla D pressionada")
+        }
+    }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        //verifica se  o objeto tem Tag Line
+        if (collision.gameObject.CompareTag("Line"))
+        {
+            Debug.Log("GameOver");
+            //retorno o personagem para posicao inicial
+            transform.position = posInicial;
+        }
+        //verifica se  o objeto tem a Checkpoint
+        if (collision.gameObject.CompareTag("Checkpoint"))
+        {
+            Debug.Log("Checkpoint");
+            //modifica a posicao inicial para a posicao do checkpoint
+            posInicial = collision.gameObject.transform.position;
         }
     }
 }
